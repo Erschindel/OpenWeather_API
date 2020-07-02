@@ -32,11 +32,11 @@ def updateData () :
         return "csv file updated"
 
 def graphForecast () :
+    updateData ()
     x, y = np.loadtxt("data/minutely.csv", delimiter = ",", unpack = True)
 
     dateconv = np.vectorize(dt.datetime.fromtimestamp)
     xTime = dateconv(x)
-    print(type(xTime))
 
     plt.plot(xTime, y)
     plt.xlabel("time (min)")
@@ -50,7 +50,15 @@ currentRainVolume = data["minutely"][0]["precipitation"]
 hourlyRainChange = currentRainVolume - data["minutely"][60]["precipitation"]
 
 def rainNextHour() :
-    ans = f"{currentRainVolume}mm (+{abs(hourlyRainChange)}mm predicted in the next hour)"
+    willItRain = "No"
+
+    for minute in range(0, len(data["minutely"])) :
+        if data["minutely"][minute]["precipitation"] > 0 :
+            willItRain = "Yes"
+            break
+
+    ans = f"{willItRain}. {currentRainVolume}mm (+{abs(hourlyRainChange)}mm predicted in an hour)"
+
     if hourlyRainChange < 0 :
         ans = ans.replace("+", "-")
     return ans
